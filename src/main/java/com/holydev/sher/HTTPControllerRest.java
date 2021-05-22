@@ -139,23 +139,21 @@ public class HTTPControllerRest extends HttpServlet {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/check")
-    public ResponseEntity<String> CheckOrder(HttpServletRequest request) {
+    @RequestMapping(method = RequestMethod.GET, value = "/check")
+    public Order CheckOrder(HttpServletRequest request) {
         try {
-            String id = request.getHeader("id");
+            String id = request.getParameter("id");
             if (busy_ids.contains(id)) {
                 Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
-                return ResponseEntity.ok(order.toString());
+                return order;
             } else {
-                return ResponseEntity.ok("");
+                return new Order();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error!");
+            return new Order();
         }
     }
-
-
 
 
 }
