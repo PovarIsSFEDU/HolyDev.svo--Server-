@@ -20,6 +20,6 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE * FROM hack.orders SET status=:newStatus WHERE order_id=:id", nativeQuery = true)
+    @Query(value = "UPDATE orders SET status=:newStatus WHERE order_id=:id", nativeQuery = true)
     void updateOrder(@Param("newStatus") int newStatus, @Param("id") int id);
 }
