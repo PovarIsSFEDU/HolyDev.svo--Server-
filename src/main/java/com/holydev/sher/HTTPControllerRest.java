@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -24,7 +26,10 @@ public class HTTPControllerRest extends HttpServlet {
     @Autowired
     WorkerRepository workerRepository;
 
+    @Autowired
+    OrderRepo orderRepo;
 
+    protected ArrayList<String> busy_ids = new ArrayList<String>();
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/user")
@@ -33,8 +38,9 @@ public class HTTPControllerRest extends HttpServlet {
             String user = request.getHeader("name");
 
             Worker worker = workerRepository.getByUserName(user);
-            int ans = worker.getId();
-            return ResponseEntity.ok().body("" + ans);
+
+            String ans = worker.getId() + " " + worker.getUser_type();
+            return ResponseEntity.ok().body(ans);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Error!");
@@ -43,7 +49,7 @@ public class HTTPControllerRest extends HttpServlet {
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/add")
-    public ResponseEntity<String> AddWorker(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> AddWorker(HttpServletRequest request) {
         try {
             workerRepository.save(new Worker(Integer.parseInt(request.getParameter("id")), request.getParameter("time"), Integer.parseInt(request.getParameter("type")), Double.parseDouble(request.getParameter("lat")), Double.parseDouble(request.getParameter("long")), Integer.parseInt(request.getParameter("user_type")), Boolean.parseBoolean(request.getParameter("status")), request.getParameter("username")));
             return ResponseEntity.ok().
@@ -72,7 +78,7 @@ public class HTTPControllerRest extends HttpServlet {
 
     //
     @RequestMapping(method = RequestMethod.POST, value = "/id")
-    public ResponseEntity<String> WorkerByID(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> WorkerByID(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             List<Worker> list = workerRepository.getByID(id);
@@ -87,21 +93,57 @@ public class HTTPControllerRest extends HttpServlet {
         }
     }
 
+    //TODO Привязать погодный API
     @RequestMapping(method = RequestMethod.POST, value = "/weather")
-    public void Weather(HttpServletRequest request, HttpServletResponse response) {
-        //TODO Возвращает состояние погоды (направление и скорость ветра, осадки, миллиметраж осадков)
+    public ResponseEntity<String> Weather(HttpServletRequest request) {
+        String ans = "SSW 5; Snow 5; -4";
+        return ResponseEntity.ok().body(ans);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/order")
-    public void Order(HttpServletRequest request, HttpServletResponse response) {
-        /*TODO Возвращает статус принятия приказа (принят/в обработке)
-        TODO Вид приказа - (тип приказа, место приказа LatLng, id свободных машин, id контролера)*/
+    @RequestMapping(method = RequestMethod.POST, value = "/SetOrder")
+    public ResponseEntity<String> SetOrder(HttpServletRequest request) {
+        try {
+            Order order = new Order();
+            order.setOrder_id(Integer.parseInt(request.getHeader("order_id")));
+            order.setDate(""); //TODO сделать дату
+            order.setLat(Double.parseDouble(request.getHeader("lat")));
+            order.setLng(Double.parseDouble(request.getHeader("lng")));
+            order.setOrder_type(Integer.parseInt(request.getHeader("order_type")));
+            order.setWorkers_id(request.getHeader("workers_id"));
+            order.setChecker_id(Integer.parseInt(request.getHeader("checker_id")));
+            order.setStatus(1);
+
+            orderRepo.save(order);
+
+            busy_ids = new ArrayList<String>(Arrays.asList(order.getWorkers_id().split(" ")));
+
+
+            return ResponseEntity.ok("2");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error!");
+        }
+
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/check")
-    public void CheckOrder(HttpServletRequest request, HttpServletResponse response) {
-        /*TODO Респонс - приказ на мобильное приложение с определенным id.
-        TODO Вид приказа - (тип приказа, место приказа LatLng)*/
+    public ResponseEntity<String> CheckOrder(HttpServletRequest request) {
+        try {
+            String id = request.getHeader("id");
+            if (busy_ids.contains(id)) {
+                Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
+
+
+
+                return ResponseEntity.ok("");
+            } else {
+                return ResponseEntity.ok("");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error!");
+        }
     }
 
 

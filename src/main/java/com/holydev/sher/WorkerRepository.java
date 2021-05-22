@@ -11,7 +11,7 @@ import java.util.List;
 public interface WorkerRepository extends JpaRepository<Worker, Integer> {
     @Modifying
     @Transactional
-    @Query(value = "UPDATE * FROM hack.employees SET position=:newPosition WHERE number=:number", nativeQuery = true)
+    @Query(value = "UPDATE * FROM hack.workers SET position=:newPosition WHERE number=:number", nativeQuery = true)
     void updatePosition(@Param("newPosition") String newPosition, @Param("number") int number);
 
     @Query(value = "SELECT * FROM hack.employees", nativeQuery = true)
@@ -25,7 +25,6 @@ public interface WorkerRepository extends JpaRepository<Worker, Integer> {
     @Transactional
     @Query(value = "SELECT * FROM hack.employees WHERE id=:id", nativeQuery = true)
     List<Worker> getByID(@Param("id") int type);
-
 
 
     @Transactional
