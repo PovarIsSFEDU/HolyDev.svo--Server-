@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +26,7 @@ public class HTTPControllerRest extends HttpServlet {
 
     @Autowired
     OrderRepo orderRepo;
+
     List<Order> orders;
     ArrayList<String> busy_ids = new ArrayList<>();
     ArrayList<Integer> checkers = new ArrayList<>();
@@ -62,59 +61,43 @@ public class HTTPControllerRest extends HttpServlet {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/free")
-    public ResponseEntity<String> FreeWorkersByType(HttpServletRequest request) {
+    public List<Worker> FreeWorkersByType(HttpServletRequest request) {
         try {
             int type = Integer.parseInt(request.getHeader("type"));
-            List<Worker> list = workerRepository.getFreeByID(type);
-            StringBuilder ans = new StringBuilder();
-            for (Worker w : list) {
-                ans.append(w.getId()).append(" ");
-            }
-            return ResponseEntity.ok().body(ans.toString());
+            return workerRepository.getFreeByID(type);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error!");
+            return null;
         }
     }
 
     //
     @RequestMapping(method = RequestMethod.POST, value = "/id")
-    public ResponseEntity<String> WorkerByID(HttpServletRequest request) {
+    public List<Worker> WorkerByID(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            List<Worker> list = workerRepository.getByID(id);
-            StringBuilder ans = new StringBuilder();
-            for (Worker w : list) {
-                ans.append(w.getLatitude()).append(",").append(" ").append(w.getLongitude()).append(";").append(" ").append(w.getStatus());
-            }
-            return ResponseEntity.ok().body(ans.toString());
+            return workerRepository.getByID(id);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
+            return null;
         }
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/all")
-    public ResponseEntity<String> AllWorkers(HttpServletRequest request) {
+    public List<Worker> AllWorkers(HttpServletRequest request) {
         try {
-            List<Worker> list = workerRepository.getAll();
-            StringBuilder ans = new StringBuilder();
-            for (Worker w : list) {
-                ans.append(w.getId()).append(",").append(" ").append(w.getLatitude()).append(",").append(" ").append(w.getLongitude()).append(",").append(" ").append(w.getStatus()).append(";");
-            }
-            return ResponseEntity.ok().body(ans.toString());
+            return workerRepository.getAll();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
+            return null;
         }
     }
 
 
-    //TODO Привязать погодный API
+
     @RequestMapping(method = RequestMethod.GET, value = "/weather")
-    public ResponseEntity<String> Weather(HttpServletRequest request) {
-        String ans = "SSW 5; Snow 5; -4";
-        return ResponseEntity.ok().body(ans);
+    public Weather Weather(HttpServletRequest request) {
+        return new Weather("SSW", 5.1f, "snow", 12f, -5);
     }
 
 
@@ -206,7 +189,6 @@ public class HTTPControllerRest extends HttpServlet {
         try {
             int order_id = Integer.parseInt(request.getHeader("orderId"));
             orderRepo.updateOrder(3, order_id);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
