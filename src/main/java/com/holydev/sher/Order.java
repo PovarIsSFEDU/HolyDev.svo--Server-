@@ -23,6 +23,10 @@ public class Order {
     @Column(name = "checker_id")
     private int checker_id;
 
+    @Override
+    public String toString() {
+        return order_id + " " + lat + " " + lng;
+    }
 
     public Order(int order_id, double lat, double lng, int order_type, String workers_id, String date, int status, int checker_id) {
         this.order_id = order_id;

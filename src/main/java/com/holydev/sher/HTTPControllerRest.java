@@ -116,6 +116,7 @@ public class HTTPControllerRest extends HttpServlet {
         return ResponseEntity.ok().body(ans);
     }
 
+
     @RequestMapping(method = RequestMethod.POST, value = "/SetOrder")
     public ResponseEntity<String> SetOrder(HttpServletRequest request) {
         try {
@@ -128,19 +129,15 @@ public class HTTPControllerRest extends HttpServlet {
             order.setWorkers_id(request.getHeader("workers_id"));
             order.setChecker_id(Integer.parseInt(request.getHeader("checker_id")));
             order.setStatus(1);
-
             orderRepo.save(order);
-
-            busy_ids = new ArrayList<String>(Arrays.asList(order.getWorkers_id().split(" ")));
-
-
+            busy_ids = new ArrayList<>(Arrays.asList(order.getWorkers_id().split(" ")));
             return ResponseEntity.ok("2");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Error!");
         }
-
     }
+
 
     @RequestMapping(method = RequestMethod.POST, value = "/check")
     public ResponseEntity<String> CheckOrder(HttpServletRequest request) {
@@ -148,18 +145,17 @@ public class HTTPControllerRest extends HttpServlet {
             String id = request.getHeader("id");
             if (busy_ids.contains(id)) {
                 Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
-
-
-                return ResponseEntity.ok("");
+                return ResponseEntity.ok(order.toString());
             } else {
                 return ResponseEntity.ok("");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Error!");
         }
     }
+
+
 
 
 }
