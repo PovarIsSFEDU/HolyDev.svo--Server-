@@ -99,7 +99,7 @@ public class HTTPControllerRest extends HttpServlet {
             List<Worker> list = workerRepository.getAll();
             StringBuilder ans = new StringBuilder();
             for (Worker w : list) {
-                ans.append(w.getId()).append(",").append(w.getLatitude()).append(",").append(w.getLongitude()).append(",").append(w.getStatus()).append(";");
+                ans.append(w.getId()).append(",").append(" ").append(w.getLatitude()).append(",").append(" ").append(w.getLongitude()).append(",").append(" ").append(w.getStatus()).append(";");
             }
             return ResponseEntity.ok().body(ans.toString());
         } catch (Exception e) {
@@ -123,7 +123,6 @@ public class HTTPControllerRest extends HttpServlet {
             Order order = new Order();
             order.setOrder_id(Integer.parseInt(request.getHeader("order_id")));
             order.setDate(""); //TODO сделать дату
-            //TODO Передача номера ВПП !ПОДВЯЗАТЬ КООРДИНАТЫ!
             order.setLat(Double.parseDouble(request.getHeader("lat")));
             order.setLng(Double.parseDouble(request.getHeader("lng")));
             order.setOrder_type(Integer.parseInt(request.getHeader("order_type")));
@@ -148,12 +147,13 @@ public class HTTPControllerRest extends HttpServlet {
                 Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
                 return order;
             } else {
-                return new Order();
+                return Order.generateOkOrder();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new Order();
+            return Order.generateOkOrder();
         }
     }
+
 
 }

@@ -43,6 +43,10 @@ public class Order {
     public Order() {
     }
 
+    public static Order generateOkOrder() {
+        return new Order(-1, 0.0, 0.0, -1, "", "", -1, -1);
+    }
+
     public int getOrder_id() {
         return order_id;
     }
