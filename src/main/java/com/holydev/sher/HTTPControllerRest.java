@@ -30,6 +30,7 @@ public class HTTPControllerRest extends HttpServlet {
     OrderRepo orderRepo;
     List<Order> orders;
     ArrayList<String> busy_ids = new ArrayList<>();
+    ArrayList<Integer> checkers = new ArrayList<>();
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/user")
@@ -144,7 +145,7 @@ public class HTTPControllerRest extends HttpServlet {
         try {
             orders = orderRepo.getAll();
             for (Order o : orders) {
-                if (o.getStatus() == 1) {
+                if (o.getStatus() != 3) {
                     String[] temp = o.getWorkers_id().split(" ");
                     busy_ids.addAll(Arrays.asList(temp));
                 }
@@ -152,7 +153,6 @@ public class HTTPControllerRest extends HttpServlet {
             String id = request.getParameter("id");
             if (busy_ids.contains(id)) {
                 List<Order> orders = orderRepo.getByBusyID();
-                Order order = new Order();
                 for (Order o : orders) {
                     String[] temp = o.getWorkers_id().split(" ");
                     for (String s : temp) {
@@ -161,7 +161,6 @@ public class HTTPControllerRest extends HttpServlet {
                         }
                     }
                 }
-
             } else {
                 return Order.generateOkOrder();
             }
@@ -172,5 +171,45 @@ public class HTTPControllerRest extends HttpServlet {
         return Order.generateOkOrder();
     }
 
+
+    @RequestMapping(method = RequestMethod.GET, value = "/kontr")
+    public Order KontrOrder(HttpServletRequest request) {
+        try {
+            orders = orderRepo.getAll();
+            for (Order o : orders) {
+                if (o.getStatus() != 3) {
+                    int temp = o.getChecker_id();
+                    checkers.add(temp);
+                }
+            }
+            int id = Integer.parseInt(request.getParameter("id"));
+            if (checkers.contains(id)) {
+                List<Order> orders = orderRepo.getByBusyID();
+                for (Order o : orders) {
+                    int temp = o.getChecker_id();
+                    if (temp == id) {
+                        return o;
+                    }
+                }
+            } else {
+                return Order.generateOkOrder();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Order.generateOkOrder();
+        }
+        return Order.generateOkOrder();
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/upd")
+    public void UpdateOrderStatus(HttpServletRequest request) {
+        try {
+            int order_id = Integer.parseInt(request.getHeader("orderId"));
+            orderRepo.updateOrder(3, order_id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
