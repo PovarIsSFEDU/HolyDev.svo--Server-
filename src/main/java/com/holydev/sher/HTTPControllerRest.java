@@ -61,9 +61,9 @@ public class HTTPControllerRest extends HttpServlet {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/free")
-    public ResponseEntity<String> FreeWorkersByID(HttpServletRequest request) {
+    public ResponseEntity<String> FreeWorkersByType(HttpServletRequest request) {
         try {
-            int type = Integer.parseInt(request.getParameter("type"));
+            int type = Integer.parseInt(request.getHeader("type"));
             List<Worker> list = workerRepository.getFreeByID(type);
             StringBuilder ans = new StringBuilder();
             for (Worker w : list) {
@@ -93,8 +93,24 @@ public class HTTPControllerRest extends HttpServlet {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/all")
+    public ResponseEntity<String> AllWorkers(HttpServletRequest request) {
+        try {
+            List<Worker> list = workerRepository.getAll();
+            StringBuilder ans = new StringBuilder();
+            for (Worker w : list) {
+                ans.append(w.getId()).append(",").append(" ").append(w.getLatitude()).append(",").append(" ").append(w.getLongitude()).append(",").append(" ").append(w.getStatus()).append(";");
+            }
+            return ResponseEntity.ok().body(ans.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+
     //TODO Привязать погодный API
-    @RequestMapping(method = RequestMethod.POST, value = "/weather")
+    @RequestMapping(method = RequestMethod.GET, value = "/weather")
     public ResponseEntity<String> Weather(HttpServletRequest request) {
         String ans = "SSW 5; Snow 5; -4";
         return ResponseEntity.ok().body(ans);
@@ -132,7 +148,6 @@ public class HTTPControllerRest extends HttpServlet {
             String id = request.getHeader("id");
             if (busy_ids.contains(id)) {
                 Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
-
 
 
                 return ResponseEntity.ok("");
