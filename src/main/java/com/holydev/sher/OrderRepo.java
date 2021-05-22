@@ -14,8 +14,8 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
 
 
     @Transactional
-    @Query(value = "SELECT * FROM hack.orders WHERE workers_id LIKE '%:id%'", nativeQuery = true)
-    List<Order> getByBusyID(@Param("id") int type);
+    @Query(value = "SELECT * FROM hack.orders WHERE status = 1", nativeQuery = true)
+    List<Order> getByBusyID();
 
 
     @Modifying

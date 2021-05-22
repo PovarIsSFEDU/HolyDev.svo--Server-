@@ -28,8 +28,8 @@ public class HTTPControllerRest extends HttpServlet {
 
     @Autowired
     OrderRepo orderRepo;
-
-    protected ArrayList<String> busy_ids = new ArrayList<String>();
+    List<Order> orders;
+    ArrayList<String> busy_ids = new ArrayList<>();
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/user")
@@ -142,10 +142,26 @@ public class HTTPControllerRest extends HttpServlet {
     @RequestMapping(method = RequestMethod.GET, value = "/check")
     public Order CheckOrder(HttpServletRequest request) {
         try {
+            orders = orderRepo.getAll();
+            for (Order o : orders) {
+                if (o.getStatus() == 1) {
+                    String[] temp = o.getWorkers_id().split(" ");
+                    busy_ids.addAll(Arrays.asList(temp));
+                }
+            }
             String id = request.getParameter("id");
             if (busy_ids.contains(id)) {
-                Order order = orderRepo.getByBusyID(Integer.parseInt(id)).get(0);
-                return order;
+                List<Order> orders = orderRepo.getByBusyID();
+                Order order = new Order();
+                for (Order o : orders) {
+                    String[] temp = o.getWorkers_id().split(" ");
+                    for (String s : temp) {
+                        if (s.equals(id)) {
+                            return o;
+                        }
+                    }
+                }
+
             } else {
                 return Order.generateOkOrder();
             }
@@ -153,6 +169,7 @@ public class HTTPControllerRest extends HttpServlet {
             e.printStackTrace();
             return Order.generateOkOrder();
         }
+        return Order.generateOkOrder();
     }
 
 
