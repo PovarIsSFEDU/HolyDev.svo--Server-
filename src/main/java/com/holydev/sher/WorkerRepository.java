@@ -19,8 +19,9 @@ public interface WorkerRepository extends JpaRepository<Worker, Integer> {
 
 
     @Transactional
-    @Query(value = "SELECT * FROM hack.employees WHERE type=:type AND status=true", nativeQuery = true)
-    List<Worker> getFreeByID(@Param("type") int type);
+    @Query(value = "SELECT * FROM hack.employees WHERE type=:type AND status=true AND user_type = :utype", nativeQuery = true)
+    List<Worker> getFreeByID(@Param("type") int type, @Param("utype") int user_type);
+
 
     @Transactional
     @Query(value = "SELECT * FROM hack.employees WHERE id=:id", nativeQuery = true)

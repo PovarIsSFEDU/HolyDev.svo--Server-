@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 
@@ -64,14 +65,15 @@ public class HTTPControllerRest extends HttpServlet {
     public List<Worker> FreeWorkersByType(HttpServletRequest request) {
         try {
             int type = Integer.parseInt(request.getHeader("type"));
-            return workerRepository.getFreeByID(type);
+            int user_type = Integer.parseInt(request.getHeader("user_type"));
+            return workerRepository.getFreeByID(type, user_type);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+    
 
-    //
     @RequestMapping(method = RequestMethod.POST, value = "/id")
     public List<Worker> WorkerByID(HttpServletRequest request) {
         try {
@@ -94,7 +96,6 @@ public class HTTPControllerRest extends HttpServlet {
     }
 
 
-
     @RequestMapping(method = RequestMethod.GET, value = "/weather")
     public Weather Weather(HttpServletRequest request) {
         return new Weather("SSW", 5.1f, "snow", 12f, -5);
@@ -104,11 +105,35 @@ public class HTTPControllerRest extends HttpServlet {
     @RequestMapping(method = RequestMethod.POST, value = "/SetOrder")
     public ResponseEntity<String> SetOrder(HttpServletRequest request) {
         try {
+            int flag = 0;
             Order order = new Order();
             order.setOrder_id(Integer.parseInt(request.getHeader("order_id")));
-            order.setDate(""); //TODO сделать дату
-            order.setLat(Double.parseDouble(request.getHeader("lat")));
-            order.setLng(Double.parseDouble(request.getHeader("lng")));
+            order.setDate("23.05");
+            Enumeration<String> headers = request.getHeaderNames();
+            while (headers.hasMoreElements()) {
+                if (headers.nextElement().equals("vpp_id")) {
+                    switch (request.getHeader("vpp_id")) {
+                        case "1":
+                            order.setLat(1);
+                            order.setLng(1);
+                            break;
+                        case "2":
+                            order.setLat(2);
+                            order.setLng(2);
+                            break;
+                        case "3":
+                            order.setLat(3);
+                            order.setLng(3);
+                            break;
+                    }
+
+                    flag = 1;
+                }
+            }
+            if (flag != 1) {
+                order.setLat(Double.parseDouble(request.getHeader("lat")));
+                order.setLng(Double.parseDouble(request.getHeader("lng")));
+            }
             order.setOrder_type(Integer.parseInt(request.getHeader("order_type")));
             order.setWorkers_id(request.getHeader("workers_id"));
             order.setChecker_id(Integer.parseInt(request.getHeader("checker_id")));

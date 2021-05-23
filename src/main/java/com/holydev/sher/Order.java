@@ -6,7 +6,6 @@ import javax.persistence.*;
 @Table(name = "Orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int order_id;
     @Column(name = "lat")
     private double lat;
